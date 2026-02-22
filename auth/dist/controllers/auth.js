@@ -12,12 +12,44 @@ export const loginUser = TryCatch(async (req, res) => {
         });
     }
     const token = jwt.sign({
-        _id: user?._id,
+        user,
     }, process.env.JWT_SECRET, {
         expiresIn: "15d",
     });
     return res.status(200).json({
         message: "Logged In Success",
+        token,
+        user,
+    });
+});
+const allowedRoles = ["customer", "rider", "seller"];
+export const addUserRole = TryCatch(async (req, res) => {
+    if (!req?.user?._id) {
+        return res.status(401).json({
+            message: "Unauthorised",
+        });
+    }
+    const { role } = req.body;
+    if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+            message: "Invalid role",
+        });
+    }
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+        return res.status(404).json({
+            message: "User not found",
+        });
+    }
+    user.role = role;
+    const token = jwt.sign({
+        user,
+    }, process.env.JWT_SECRET, {
+        expiresIn: "15d",
+    });
+    await user.save();
+    return res.status(200).json({
+        message: "Added User Role",
         token,
         user,
     });
