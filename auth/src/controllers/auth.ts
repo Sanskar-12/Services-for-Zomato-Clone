@@ -79,3 +79,11 @@ export const addUserRole = TryCatch(async (req: AuthenticatedRequest, res) => {
     user,
   });
 });
+
+export const myProfile = TryCatch(async (req: AuthenticatedRequest, res) => {
+  const user = req.user;
+
+  return res.status(200).json({
+    user,
+  });
+});
