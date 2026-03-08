@@ -12,10 +12,7 @@ app.use(express.urlencoded({
     limit: "50mb",
     extended: true,
 }));
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-}));
+app.use(cors());
 const { CLOUD_NAME, CLOUD_API_KEY, CLOUD_SECRET_KEY } = process.env;
 if (!CLOUD_NAME || !CLOUD_API_KEY || !CLOUD_SECRET_KEY) {
     throw new Error("Missing Cloudinary environment variables");
