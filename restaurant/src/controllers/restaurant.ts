@@ -73,6 +73,7 @@ export const addRestaurant = TryCatch(
         coordinates: [Number(longitude), Number(latitude)],
         formattedAddress,
       },
+      isVerified: false,
     });
 
     return res.status(201).json({
@@ -101,7 +102,7 @@ export const fetchMyRestaurant = TryCatch(
     if (!restaurant) {
       return res.status(400).json({
         success: false,
-        message: "Invalid User",
+        message: "No Restaurant Found",
       });
     }
 

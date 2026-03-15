@@ -55,6 +55,7 @@ export const addRestaurant = TryCatch(async (req, res) => {
             coordinates: [Number(longitude), Number(latitude)],
             formattedAddress,
         },
+        isVerified: false,
     });
     return res.status(201).json({
         success: true,
@@ -76,7 +77,7 @@ export const fetchMyRestaurant = TryCatch(async (req, res) => {
     if (!restaurant) {
         return res.status(400).json({
             success: false,
-            message: "Invalid User",
+            message: "No Restaurant Found",
         });
     }
     if (!user?.restaurantId) {
