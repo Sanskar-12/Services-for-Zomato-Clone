@@ -100,3 +100,66 @@ export const fetchMyRestaurant = TryCatch(async (req, res) => {
         restaurant,
     });
 });
+export const updateStatusRestaurant = TryCatch(async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorised",
+        });
+    }
+    const { status } = req.body;
+    if (typeof status !== "boolean") {
+        return res.status(400).json({
+            success: false,
+            message: "Status must be boolean",
+        });
+    }
+    const restaurant = await Restaurant.findOne({
+        ownerId: user?._id,
+    });
+    if (!restaurant) {
+        return res.status(400).json({
+            success: false,
+            message: "No Restaurant Found",
+        });
+    }
+    restaurant.isOpen = status;
+    await restaurant.save();
+    return res.status(200).json({
+        success: true,
+        message: "Restaurant Status Updated",
+        restaurant,
+    });
+});
+export const updateRestaurant = TryCatch(async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorised",
+        });
+    }
+    const { name, description } = req.body;
+    const restaurant = await Restaurant.findOne({
+        ownerId: user?._id,
+    });
+    if (!restaurant) {
+        return res.status(400).json({
+            success: false,
+            message: "No Restaurant Found",
+        });
+    }
+    if (name) {
+        restaurant.name = name;
+    }
+    if (description) {
+        restaurant.description = description;
+    }
+    await restaurant.save();
+    return res.status(200).json({
+        success: true,
+        message: "Restaurant Details Updated",
+        restaurant,
+    });
+});
