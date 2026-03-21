@@ -39,7 +39,7 @@ const schema = new mongoose.Schema<IMenuItem>(
     },
     isAvailable: {
       type: Boolean,
-      required: true,
+      default: true,
     },
   },
   {
