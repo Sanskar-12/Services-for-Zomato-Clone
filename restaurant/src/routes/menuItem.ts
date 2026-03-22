@@ -12,7 +12,7 @@ const router = express();
 
 router.post("/new", isAuth, isSeller, uploadFile, addMenuItem);
 router.get("/all/:id", isAuth, getAllItems);
-router.delete("/:id", isAuth, isSeller, deleteMenuItem);
-router.put("/status/:id", isAuth, isSeller, toggleMenuItemAvailability);
+router.delete("/:itemId", isAuth, isSeller, deleteMenuItem);
+router.get("/status/:itemId", isAuth, isSeller, toggleMenuItemAvailability);
 
 export default router;
