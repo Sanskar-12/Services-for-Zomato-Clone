@@ -65,7 +65,7 @@ export const getAllItems = TryCatch(async (req, res) => {
             message: "Id is required",
         });
     }
-    const items = await MenuItem.find({});
+    const items = await MenuItem.find({ restaurantId: id });
     res.status(200).json({
         success: true,
         items,
