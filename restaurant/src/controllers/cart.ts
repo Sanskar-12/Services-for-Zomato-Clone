@@ -66,3 +66,37 @@ export const addToCart = TryCatch(async (req: AuthenticatedRequest, res) => {
     cart: cartItem,
   });
 });
+
+export const fetchMyCart = TryCatch(async (req: AuthenticatedRequest, res) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "Please Login",
+    });
+  }
+
+  const userId = user?._id;
+
+  const cartItems = await Cart.find({ userId })
+    .populate("itemId")
+    .populate("restaurantId");
+
+  let subtotal = 0;
+  let cartLength = 0;
+
+  for (const cartItem of cartItems) {
+    const item: any = cartItem.itemId;
+
+    subtotal = subtotal + item.price * cartItem.quantity;
+    cartLength = cartLength + cartItem.quantity;
+  }
+
+  return res.status(200).json({
+    success: true,
+    cartLength,
+    subtotal,
+    cart: cartItems,
+  });
+});
