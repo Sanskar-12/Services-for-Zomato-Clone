@@ -63,6 +63,7 @@ export const addToCart = TryCatch(async (req: AuthenticatedRequest, res) => {
 
   return res.status(200).json({
     success: true,
+    message: "Added to Cart Successfully",
     cart: cartItem,
   });
 });
