@@ -101,3 +101,130 @@ export const fetchMyCart = TryCatch(async (req: AuthenticatedRequest, res) => {
     cart: cartItems,
   });
 });
+
+export const incrementCartItem = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Please Login",
+      });
+    }
+
+    const userId = user?._id;
+
+    const { itemId } = req.body;
+
+    if (!userId || !itemId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request",
+      });
+    }
+
+    const cartItem = await Cart.findOneAndUpdate(
+      {
+        userId,
+        itemId,
+      },
+      {
+        $inc: {
+          quantity: 1,
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!cartItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Quantity increased",
+      cartItem,
+    });
+  },
+);
+
+export const decrementCartItem = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Please Login",
+      });
+    }
+
+    const userId = user?._id;
+
+    const { itemId } = req.body;
+
+    if (!userId || !itemId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request",
+      });
+    }
+
+    const cartItem = await Cart.findOne({
+      userId,
+      itemId,
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found",
+      });
+    }
+
+    if (cartItem?.quantity === 1) {
+      await cartItem.deleteOne();
+
+      return res.status(200).json({
+        success: true,
+        message: "Item Removed from Cart",
+      });
+    }
+
+    cartItem.quantity = cartItem.quantity - 1;
+
+    await cartItem.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Quantity decreased",
+      cartItem,
+    });
+  },
+);
+
+export const clearCart = TryCatch(async (req: AuthenticatedRequest, res) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "Please Login",
+    });
+  }
+
+  const userId = user?._id;
+
+  await Cart.deleteMany({ userId });
+
+  return res.status(200).json({
+    success: true,
+    message: "Cart cleared successfully",
+  });
+});
