@@ -4,7 +4,7 @@ import {
   addAddress,
   deleteAddress,
   getMyAddresses,
-} from "../controllers/Address.js";
+} from "../controllers/address.js";
 
 const router = express.Router();
 
