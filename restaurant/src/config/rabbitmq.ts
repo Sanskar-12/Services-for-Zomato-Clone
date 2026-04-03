@@ -11,7 +11,7 @@ export const connectRabbitMQ = async () => {
     durable: true,
   });
 
-  console.log("Connected to RabbitMQ (Util Service)");
+  console.log("Connected to RabbitMQ (Restaurant Service)");
 };
 
 export const getChannel = () => {

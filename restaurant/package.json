@@ -12,6 +12,7 @@
     "dev": "npm run build && concurrently \"tsc --watch\" \"node --watch dist/index.js\""
   },
   "dependencies": {
+    "amqplib": "^1.0.3",
     "axios": "^1.13.6",
     "cors": "^2.8.6",
     "datauri": "^4.1.0",
@@ -22,6 +23,7 @@
     "multer": "^2.1.1"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.8",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
