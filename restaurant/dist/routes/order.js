@@ -3,5 +3,5 @@ import { isAuth } from "../middlewares/isAuth.js";
 import { createOrder, fetchOrderForPayment } from "../controllers/order.js";
 const router = express.Router();
 router.post("/new", isAuth, createOrder);
-router.get("/payment", isAuth, fetchOrderForPayment);
+router.get("/payment/:id", isAuth, fetchOrderForPayment);
 export default router;
