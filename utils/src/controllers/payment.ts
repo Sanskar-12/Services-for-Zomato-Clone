@@ -11,7 +11,7 @@ export const createRazorpayOrder = async (req: Request, res: Response) => {
     `${process.env.RESTAURANT_SERVICE}/api/order/payment/${orderId}`,
     {
       headers: {
-        "x-internal_key": process.env.INTERNAL_SERVICE_KEY,
+        "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
       },
     },
   );
@@ -25,7 +25,7 @@ export const createRazorpayOrder = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     razorpayOrderId: razorpayOrder?.id,
-    key: process.env.RAZORPAY_API_SECRET,
+    key: process.env.RAZORPAY_API_KEY,
   });
 };
 

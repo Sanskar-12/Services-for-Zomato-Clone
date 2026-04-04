@@ -6,7 +6,7 @@ export const createRazorpayOrder = async (req, res) => {
     const { orderId } = req.body;
     const { data } = await axios.get(`${process.env.RESTAURANT_SERVICE}/api/order/payment/${orderId}`, {
         headers: {
-            "x-internal_key": process.env.INTERNAL_SERVICE_KEY,
+            "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
         },
     });
     const razorpayOrder = await razorpay.orders.create({
@@ -17,7 +17,7 @@ export const createRazorpayOrder = async (req, res) => {
     return res.status(200).json({
         success: true,
         razorpayOrderId: razorpayOrder?.id,
-        key: process.env.RAZORPAY_API_SECRET,
+        key: process.env.RAZORPAY_API_KEY,
     });
 };
 export const verifyRazorpayPayment = async (req, res) => {
