@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
 import http from "http";
+import internalRoute from "../src/routes/internal.js";
 import { initSocket } from "./socket.js";
 
 dotenv.config();
@@ -10,6 +11,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/v1/internal", internalRoute);
 
 const server = http.createServer(app);
 
