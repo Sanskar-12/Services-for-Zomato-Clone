@@ -88,8 +88,17 @@ export const payWithStripe = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.body;
 
-    const { data } = await axios.get(
+    const { data: orderData } = await axios.get(
       `${process.env.RESTAURANT_SERVICE}/api/order/payment/${orderId}`,
+      {
+        headers: {
+          "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+        },
+      },
+    );
+
+    const { data } = await axios.get(
+      `${process.env.RESTAURANT_SERVICE}/api/order/get/user/${orderId}`,
       {
         headers: {
           "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
@@ -107,11 +116,17 @@ export const payWithStripe = async (req: Request, res: Response) => {
             product_data: {
               name: "Zomato",
             },
-            unit_amount: data.amount * 100,
+            unit_amount: orderData.amount * 100,
           },
           quantity: 1,
         },
       ],
+      billing_address_collection: "required",
+
+      customer_email: data.user.email,
+
+      customer_creation: "always",
+
       metadata: {
         orderId,
       },

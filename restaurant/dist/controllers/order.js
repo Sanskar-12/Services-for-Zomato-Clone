@@ -1,3 +1,4 @@
+import axios from "axios";
 import TryCatch from "../middlewares/trycatch.js";
 import { Address } from "../models/Address.js";
 import { Cart } from "../models/Cart.js";
@@ -139,5 +140,30 @@ export const fetchOrderForPayment = TryCatch(async (req, res) => {
         orderId: order?._id,
         amount: order.totalAmount,
         currency: "INR",
+    });
+});
+export const fetchUserForOrder = TryCatch(async (req, res) => {
+    if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) {
+        return res.status(403).json({
+            success: false,
+            message: "Forbidden",
+        });
+    }
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+        return res.status(404).json({
+            success: false,
+            message: "Order not found",
+        });
+    }
+    const userId = order?.userId;
+    const { data } = await axios.get(`${process.env.AUTH_SERVICE}/api/auth/get/user/${userId}`, {
+        headers: {
+            "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+        },
+    });
+    return res.status(200).json({
+        success: true,
+        user: data.user,
     });
 });

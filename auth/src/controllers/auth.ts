@@ -111,3 +111,18 @@ export const myProfile = TryCatch(async (req: AuthenticatedRequest, res) => {
     user,
   });
 });
+
+export const getUserById = TryCatch(async (req, res) => {
+  if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) {
+    return res.status(403).json({
+      success: false,
+      message: "Forbidden",
+    });
+  }
+
+  const { userId } = req.params;
+
+  const user = await User.findById(userId);
+
+  return res.status(200).json({ success: true, user });
+});
