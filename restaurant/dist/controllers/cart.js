@@ -41,7 +41,7 @@ export const addToCart = TryCatch(async (req, res) => {
         },
     }, {
         upsert: true,
-        new: true,
+        returnDocument: "after",
         setDefaultsOnInsert: true,
     });
     return res.status(200).json({
@@ -100,7 +100,7 @@ export const incrementCartItem = TryCatch(async (req, res) => {
             quantity: 1,
         },
     }, {
-        new: true,
+        returnDocument: "after",
     });
     if (!cartItem) {
         return res.status(404).json({

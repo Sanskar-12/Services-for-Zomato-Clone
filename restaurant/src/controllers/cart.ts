@@ -56,7 +56,7 @@ export const addToCart = TryCatch(async (req: AuthenticatedRequest, res) => {
     },
     {
       upsert: true,
-      new: true,
+      returnDocument: "after",
       setDefaultsOnInsert: true,
     },
   );
@@ -135,7 +135,7 @@ export const incrementCartItem = TryCatch(
         },
       },
       {
-        new: true,
+        returnDocument: "after",
       },
     );
 
