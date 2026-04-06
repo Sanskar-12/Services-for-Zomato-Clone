@@ -214,3 +214,182 @@ export const fetchUserForOrder = TryCatch(async (req, res) => {
     user: data.user,
   });
 });
+
+export const fetchRestaurantOrders = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Please Login",
+      });
+    }
+
+    const { restaurantId } = req.params;
+
+    if (!restaurantId) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant Id is required",
+      });
+    }
+
+    const limit = req.query.limit ? Number(req.query.limit) : 0;
+
+    const orders = await Order.find({
+      restaurantId,
+      paymentStatus: "paid",
+    })
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  },
+);
+
+const ALLOWED_STATUS = ["accepted", "preparing", "ready_for_rider"] as const;
+
+export const updateOrderStatus = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Please Login",
+      });
+    }
+
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    if (!ALLOWED_STATUS.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Order status",
+      });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.paymentStatus !== "paid") {
+      return res.status(400).json({
+        success: false,
+        message: "Order not completed",
+      });
+    }
+
+    const restaurant = await Restaurant.findById(order.restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found",
+      });
+    }
+
+    if (restaurant.ownerId !== user?._id?.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "You are not allowed to update this order",
+      });
+    }
+
+    order.status = status;
+
+    await order.save();
+
+    await axios.post(
+      `${process.env.REALTIME_SERVICE}/api/v1/internal/emit`,
+      {
+        event: "order:update",
+        room: `user:${order.userId}`,
+        payload: {
+          orderId: order?._id,
+          status: order.status,
+        },
+      },
+      {
+        headers: {
+          "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+        },
+      },
+    );
+
+    // assign order to riders
+
+    return res.status(200).json({
+      success: true,
+      message: "Order status updated successfully",
+      order,
+    });
+  },
+);
+
+export const getMyOrders = TryCatch(async (req: AuthenticatedRequest, res) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "Please Login",
+    });
+  }
+
+  const orders = await Order.find({
+    userId: user?._id?.toString(),
+    paymentStatus: "paid",
+  }).sort({
+    createdAt: -1,
+  });
+
+  return res.status(200).json({ success: true, orders });
+});
+
+export const fetchSingleOrder = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Please Login",
+      });
+    }
+
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order?.userId !== user?._id?.toString()) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not allowed to view this order",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+  },
+);

@@ -1,9 +1,13 @@
 import express from "express";
-import { isAuth } from "../middlewares/isAuth.js";
+import { isAuth, isSeller } from "../middlewares/isAuth.js";
 import {
   createOrder,
   fetchOrderForPayment,
+  fetchRestaurantOrders,
+  fetchSingleOrder,
   fetchUserForOrder,
+  getMyOrders,
+  updateOrderStatus,
 } from "../controllers/order.js";
 
 const router = express.Router();
@@ -11,5 +15,9 @@ const router = express.Router();
 router.post("/new", isAuth, createOrder);
 router.get("/payment/:id", fetchOrderForPayment);
 router.get("/get/user/:id", fetchUserForOrder);
+router.get("/:restaurantId", isAuth, isSeller, fetchRestaurantOrders);
+router.put("/:orderId", isAuth, isSeller, updateOrderStatus);
+router.get("/my", isAuth, getMyOrders);
+router.get("/single/:orderId", isAuth, fetchSingleOrder);
 
 export default router;
