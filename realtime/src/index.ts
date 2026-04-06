@@ -2,7 +2,7 @@ import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
 import http from "http";
-import internalRoute from "../src/routes/internal.js";
+import internalRoute from "./routes/internal.js";
 import { initSocket } from "./socket.js";
 
 dotenv.config();
