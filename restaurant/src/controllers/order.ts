@@ -311,6 +311,7 @@ export const updateOrderStatus = TryCatch(
 
     await order.save();
 
+    // send message to user about the order status
     await axios.post(
       `${process.env.REALTIME_SERVICE}/api/v1/internal/emit`,
       {

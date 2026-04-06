@@ -240,6 +240,7 @@ export const updateOrderStatus = TryCatch(async (req, res) => {
     }
     order.status = status;
     await order.save();
+    // send message to user about the order status
     await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
         event: "order:update",
         room: `user:${order.userId}`,
