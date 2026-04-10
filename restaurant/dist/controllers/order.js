@@ -4,6 +4,7 @@ import { Address } from "../models/Address.js";
 import { Cart } from "../models/Cart.js";
 import { Order } from "../models/Order.js";
 import { Restaurant } from "../models/Restaurant.js";
+import { publishEvent } from "../config/order.producer.js";
 export const createOrder = TryCatch(async (req, res) => {
     const user = req.user;
     if (!user) {
@@ -254,6 +255,15 @@ export const updateOrderStatus = TryCatch(async (req, res) => {
         },
     });
     // assign order to riders
+    if (status === "ready_for_rider") {
+        console.log("Publising Order Ready for rider event for order ", order?._id);
+        await publishEvent("ORDER_READY_FOR_RIDER", {
+            orderId: order?._id,
+            restaurantId: restaurant?._id,
+            location: restaurant.autoLocation,
+        });
+        console.log("Event published successfully");
+    }
     return res.status(200).json({
         success: true,
         message: "Order status updated successfully",
