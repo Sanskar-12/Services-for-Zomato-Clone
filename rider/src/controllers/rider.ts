@@ -190,3 +190,140 @@ export const toggleRiderAvailability = TryCatch(
     });
   },
 );
+
+export const acceptOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
+  const riderUserId = req.user?._id;
+
+  const { orderId } = req.params;
+
+  if (!riderUserId) {
+    return res.status(400).json({
+      success: false,
+      message: "Please login",
+    });
+  }
+
+  const rider = await Rider.findOne({ userId: riderUserId, isAvailable: true });
+
+  if (!rider) {
+    return res.status(404).json({
+      success: false,
+      message: "Rider not found",
+    });
+  }
+
+  try {
+    const { data } = await axios.post(
+      `${process.env.RESTAURANT_SERVICE}/api/order/assign/rider`,
+      {
+        orderId,
+        riderId: riderUserId,
+        riderName: rider?.picture,
+        riderPhone: rider?.phoneNumber,
+      },
+      {
+        headers: {
+          "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+        },
+      },
+    );
+
+    if (data.success) {
+      await Rider.findOneAndUpdate(
+        {
+          userId: riderUserId,
+          isAvailable: true,
+        },
+        {
+          isAvailable: false,
+        },
+        {
+          returnDocument: "after",
+        },
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Order accepted",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Order already taken",
+    });
+  }
+});
+
+export const fetchMyCurrentOrder = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const riderUserId = req.user?._id;
+
+    if (!riderUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "Please login",
+      });
+    }
+
+    try {
+      const { data } = await axios.get(
+        `${process.env.RESTAURANT_SERVICE}/api/order/current/order?riderId=${riderUserId}`,
+        {
+          headers: {
+            "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+          },
+        },
+      );
+
+      return res.status(200).json({
+        success: true,
+        order: data.order,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  },
+);
+
+export const updateOrderStatus = TryCatch(
+  async (req: AuthenticatedRequest, res) => {
+    const riderUserId = req.user?._id;
+
+    if (!riderUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "Please login",
+      });
+    }
+
+    const { orderId } = req.params;
+
+    try {
+      const { data } = await axios.put(
+        `${process.env.RESTAURANT_SERVICE}/api/order/update/status/rider`,
+        {
+          orderId,
+        },
+        {
+          headers: {
+            "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+          },
+        },
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: data.message,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  },
+);
