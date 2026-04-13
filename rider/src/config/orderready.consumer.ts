@@ -5,7 +5,7 @@ import { getChannel } from "./rabbitmq.js";
 export const startOrderReadyConsumer = async () => {
   const channel = getChannel();
 
-  console.log("Starting to consume from: ", process.env.ORDER_READY_QUEUE);
+  console.log("Starting to consume from: ", process.env.ORDER_READY_QUEUE!);
 
   channel.consume(process.env.ORDER_READY_QUEUE!, async (msg) => {
     if (!msg) return;
@@ -33,7 +33,7 @@ export const startOrderReadyConsumer = async () => {
         location: {
           $near: {
             $geometry: location,
-            $maxDistance: 500,
+            $maxDistance: 2000,
           },
         },
       });

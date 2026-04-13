@@ -213,7 +213,7 @@ export const acceptOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
   }
 
   try {
-    const { data } = await axios.post(
+    const { data } = await axios.put(
       `${process.env.RESTAURANT_SERVICE}/api/order/assign/rider`,
       {
         orderId,
@@ -280,10 +280,10 @@ export const fetchMyCurrentOrder = TryCatch(
         success: true,
         order: data.order,
       });
-    } catch (error) {
+    } catch (error: any) {
       return res.status(500).json({
         success: false,
-        message: "Internal server error",
+        message: error.response.data.message,
       });
     }
   },

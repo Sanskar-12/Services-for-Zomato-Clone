@@ -158,7 +158,7 @@ export const acceptOrder = TryCatch(async (req, res) => {
         });
     }
     try {
-        const { data } = await axios.post(`${process.env.RESTAURANT_SERVICE}/api/order/assign/rider`, {
+        const { data } = await axios.put(`${process.env.RESTAURANT_SERVICE}/api/order/assign/rider`, {
             orderId,
             riderId: riderUserId,
             riderName: rider?.picture,
@@ -212,7 +212,7 @@ export const fetchMyCurrentOrder = TryCatch(async (req, res) => {
     catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Internal server error",
+            message: error.response.data.message,
         });
     }
 });
